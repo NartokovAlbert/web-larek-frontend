@@ -1,43 +1,48 @@
-interface IProduct {
-  category: string;
-  description: string;
+export interface IProductItem {
   id: string;
+  description: string;
   image: string;
-  price: number;
   title: string;
+  category: string;
+  price: number | null;
+}
+
+export interface IActions {
+  onClick: (event: MouseEvent) => void;
 }
 
 
-interface ICatalog {
-  products: IProduct[];
-  updateProducts: (products: IProduct[]) => void;
+export interface IOrderForm {
+email?: string;
+total?: string | number;
+payment?: string;
+address?: string;
+phone?: string;
 }
 
-interface IModalData {
-  content: HTMLElement;
-}
 
-interface IBasket {
-  products: IProduct[];
-  totalPrice: number;
-  totalCount: number;
-  haveProduct: (product: IProduct) => boolean;
-  remove:(product: IProduct) => void;
-  add:(product: IProduct) => void;
-  clear:() => void;
-}
-interface IOrder {
-  paymentMethod: PaymentMethod;
-  address: string;
+export interface IOrderLot{
+  payment: string;
   email: string;
   phone: string;
-  clear:() => void;
+  address: string;
+  total: number;
+  items: string[];
 }
-interface ISaveOrderResponse {
+
+export interface IOrder extends IOrderForm {
+  items: string[];
+}
+
+export interface IOrderResult {
   id: string;
   total: number;
 }
-enum PaymentMethod {
+
+
+export type FormErrors = Partial<Record<keyof IOrder, string>>;
+
+export enum paymentSelection {
   card = 'Безналичный',
   cash = 'Наличный',
 }

@@ -26,8 +26,8 @@ export interface IOrderLot{
   email: string;
   phone: string;
   address: string;
-  total: number;
   items: string[];
+  total: number;
 }
 
 export interface IOrder extends IOrderForm {

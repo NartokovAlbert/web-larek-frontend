@@ -1,4 +1,4 @@
-export interface IProductItem {
+export interface IOrderItem {
   id: string;
   description: string;
   image: string;
@@ -11,39 +11,32 @@ export interface IActions {
   onClick: (event: MouseEvent) => void;
 }
 
-
+// интерфейс формы заказа
 export interface IOrderForm {
-email?: string;
-total?: string | number;
 payment?: string;
 address?: string;
 phone?: string;
-}
-
-
-export interface IOrderLot{
-  payment: string;
-  email: string;
-  phone: string;
-  address: string;
-  items: string[];
-  total: number;
+email?: string;
+total?: string | number;
 }
 
 export interface IOrder extends IOrderForm {
   items: string[];
 }
 
-export interface IOrderResult {
+export interface IOrderList{
+  payment: string;
+  email: string;
+  phone: string;
+  address: string;
+  total: number;
+  items: string[];
+}
+
+export interface  IOrderListAll {
   id: string;
   total: number;
 }
 
-
+// тип ошибки формы
 export type FormErrors = Partial<Record<keyof IOrder, string>>;
-
-export enum paymentSelection {
-  card = 'Безналичный',
-  cash = 'Наличный',
-}
-

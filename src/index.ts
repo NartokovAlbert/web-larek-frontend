@@ -1,13 +1,12 @@
 import './scss/styles.scss';
 
-<<<<<<< HEAD
 import { CDN_URL, API_URL } from './utils/constants';
 import { EventEmitter } from './components/base/events';
 import { ApiModel } from './components/Model/ApiModel';
 import { DataModel } from './components/Model/DataModel';
 import { Card } from './components/View/Card';
 import { CardPreview } from './components/View/CardPreview';
-import { IOrderForm, IOrderItem } from './types';
+import { IOrderForm, IProductItem } from './types';
 import { Modal } from './components/View/Modal';
 import { ensureElement } from './utils/utils';
 import { BasketModel } from './components/Model/BasketModel';
@@ -36,38 +35,34 @@ const formModel = new FormModel(events);
 const order = new Order(orderTemplate, events);
 const contacts = new Contacts(contactsTemplate, events);
 
-/********** Отображения карточек товара на странице **********/
-// Функция для создания и отображения карточки товара
-function createAndAppendCard(item: IOrderItem) {
+/* Отображения карточек  на странице */
+events.on('productCards:receive', () => {
+  dataModel.productCards.forEach(item => {
     const card = new Card(cardCatalogTemplate, events, { onClick: () => events.emit('card:select', item) });
     ensureElement<HTMLElement>('.gallery').append(card.render(item));
- }
+  });
+});
 
- // Функция для открытия модального окна с превью карточки товара
- function openModalWithCardPreview(item: IOrderItem) {
+/* Получить объект данных "IProductItem" карточки по которой кликнули */
+events.on('card:select', (item: IProductItem) => {
+  dataModel.setPreview(item);
+  events.emit('modalCard:open', item);
+});
+/* Открываем модальное окно карточки  */
+events.on('modalCard:open', (item: IProductItem) => {
   const cardPreview = new CardPreview(cardPreviewTemplate, events);
   modal.content = cardPreview.render(item);
   modal.render();
- }
- 
- // Обработчик получения списка карточек товаров
- events.on('shopListCards:receive', () => {
-  dataModel.shopListCards.forEach(createAndAppendCard);
 });
 
- // Обработчик выбора карточки товара
- events.on('card:select', (item: IOrderItem) => {
-  dataModel.setPreview(item);
-  openModalWithCardPreview(item);
- });
-/********** Добавление карточки товара в корзину **********/
+/* Добавление карточки товара в корзину */
 events.on('card:addBasket', () => {
-  basketModel.setSelectedСard(dataModel.selectedСard); // добавить карточку товара в корзину
+  basketModel.setSelectedСard(dataModel.selectedCard); // добавить карточку товара в корзину
   basket.renderHeaderBasketCounter(basketModel.getCounter()); // отобразить количество товара на иконке корзины
   modal.close();
 });
 
-/********** Открытие модального окна корзины **********/
+/* Открытие модального окна корзины */
 events.on('basket:open', () => {
   basket.renderSumAllProducts(basketModel.getSumAllProducts());  // отобразить сумма всех продуктов в корзине
   let i = 0;
@@ -80,8 +75,8 @@ events.on('basket:open', () => {
   modal.render();
 });
 
-/********** Удаление карточки товара из корзины **********/
-events.on('basket:basketItemRemove', (item: IOrderItem) => {
+/* Удаление карточки товара из корзины */
+events.on('basket:basketItemRemove', (item: IProductItem) => {
   basketModel.deleteCardToBasket(item);
   basket.renderHeaderBasketCounter(basketModel.getCounter()); // отобразить количество товара на иконке корзины
   basket.renderSumAllProducts(basketModel.getSumAllProducts()); // отобразить сумма всех продуктов в корзине
@@ -93,7 +88,7 @@ events.on('basket:basketItemRemove', (item: IOrderItem) => {
   })
 });
 
-/********** Открытие модального окна "способа оплаты" и "адреса доставки" **********/
+/* Открытие модального окна "способа оплаты" и "адреса доставки" */
 events.on('order:open', () => {
   modal.content = order.render();
   modal.render();
@@ -102,38 +97,38 @@ events.on('order:open', () => {
 
 events.on('order:paymentSelection', (button: HTMLButtonElement) => { formModel.payment = button.name }) // передаём способ оплаты
 
-/********** Отслеживаем изменение в поле в вода "адреса доставки" **********/
+/* Отслеживаем изменение в поле в вода "адреса доставки" */
 events.on(`order:changeAddress`, (data: { field: string, value: string }) => {
   formModel.setOrderAddress(data.field, data.value);
 });
 
-/********** Валидация данных строки "address" и payment **********/
+/* Валидация данных строки "address" и payment */
 events.on('formErrors:address', (errors: Partial<IOrderForm>) => {
   const { address, payment } = errors;
   order.valid = !address && !payment;
   order.formErrors.textContent = Object.values({address, payment}).filter(i => !!i).join('; ');
 })
 
-/********** Открытие модального окна "Email" и "Телефон" **********/
+/* Открытие модального окна "Email" и "Телефон" **/
 events.on('contacts:open', () => {
   formModel.total = basketModel.getSumAllProducts();
   modal.content = contacts.render();
   modal.render();
 });
 
-/********** Отслеживаем изменение в полях вода "Email" и "Телефон" **********/
+/* Отслеживаем изменение в полях вода "Email" и "Телефон" */
 events.on(`contacts:changeInput`, (data: { field: string, value: string }) => {
   formModel.setOrderData(data.field, data.value);
 });
 
-/********** Валидация данных строки "Email" и "Телефон" **********/
+/* Валидация данных строки "Email" и "Телефон" */
 events.on('formErrors:change', (errors: Partial<IOrderForm>) => {
   const { email, phone } = errors;
   contacts.valid = !email && !phone;
   contacts.formErrors.textContent = Object.values({phone, email}).filter(i => !!i).join('; ');
 })
 
-/********** Открытие модального окна "Заказ оформлен" **********/
+/* Открытие модального окна "Заказ оформлен" */
 events.on('success:open', () => {
   apiModel.postOrderLot(formModel.getOrderLot())
     .then((data) => {
@@ -149,65 +144,20 @@ events.on('success:open', () => {
 
 events.on('success:close', () => modal.close());
 
-/********** Блокируем прокрутку страницы при открытие модального окна **********/
+/* Блокируем прокрутку страницы при открытие модального окна */
 events.on('modal:open', () => {
   modal.locked = true;
 });
 
-/********** Разблокируем прокрутку страницы при закрытие модального окна **********/
+/* Разблокируем прокрутку страницы при закрытие модального окна**/
 events.on('modal:close', () => {
   modal.locked = false;
 });
 
-/********** Получаем данные с сервера **********/
+/* Получаем данные с сервера */
 apiModel.getListProductCard()
-  .then(function (data: IOrderItem[]) {
-    dataModel.shopListCards = data;
+  .then(function (data: IProductItem[]) {
+    dataModel.productCards = data;
   })
-  // .then(dataModel.setshopListCards.bind(dataModel))
+  // .then(dataModel.setProductCards.bind(dataModel))
   .catch(error => console.log(error))
-=======
-import { EventEmitter } from './components/base/events';
-import { Card } from './components/View/Card';
-import { ApiModel } from './components/Model/ApiModel';
-import { CDN_URL, API_URL, settings } from './utils/constants';
-import { DataModel } from './components/Model/DataModel';
-
-import { IProductItem } from './types';
-
-const apiModel = new ApiModel(CDN_URL, API_URL);
-const events = new EventEmitter();
-
-
-
-const dataModel = new DataModel(events);
-
-
-
-
-const gallery = document.querySelector('.gallery');
-
-/************** Card ****************/
-const cardCatalog = document.querySelector('#card-catalog') as HTMLTemplateElement;
-
-events.on('productCards:receive', () => {
-  dataModel.productCards.forEach(item => {
-    const card = new Card(cardCatalog, events, {
-      // events.emit('card:select', {id: item.id})
-      onClick: () => events.emit('card:select', item)
-    });
-    const itemElement = card.render(item);
-    gallery.append(itemElement);
-  });
-});
-
-
-// Получить объект данных "IProductItem" карточки по которой кликнули 
-events.on('card:select', (item: IProductItem) => {
-  dataModel.setPreview(item); 
-});
-
-// Открываем модальное окно
-events.on('openModalCard', (item: IProductItem) => {
-  console.log(item)})
->>>>>>> aa47d7e7c405df101da3df5302317082db2f4452

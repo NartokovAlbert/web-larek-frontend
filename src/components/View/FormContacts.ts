@@ -1,61 +1,49 @@
-import { IEvents } from "../base/events";
+import { IEvents } from '../base/events';
 
 export interface IContacts {
- formContacts: HTMLFormElement;
- inputAll: HTMLInputElement[];
- buttonSubmit: HTMLButtonElement;
- formErrors: HTMLElement;
- render(): HTMLElement;
+	formContacts: HTMLFormElement;
+	inputAll: HTMLInputElement[];
+	buttonSubmit: HTMLButtonElement;
+	formErrors: HTMLElement;
+	render(): HTMLElement;
 }
 
 export class Contacts implements IContacts {
- formContacts: HTMLFormElement;
- inputAll: HTMLInputElement[];
- buttonSubmit: HTMLButtonElement;
- formErrors: HTMLElement;
+	formContacts: HTMLFormElement;
+	inputAll: HTMLInputElement[];
+	buttonSubmit: HTMLButtonElement;
+	formErrors: HTMLElement;
 
- constructor(private template: HTMLTemplateElement, private events: IEvents) {
-    this.formContacts = this.cloneForm(this.template);
-    this.inputAll = Array.from(this.formContacts.querySelectorAll('.form__input'));
-    this.buttonSubmit = this.formContacts.querySelector('.button');
-    this.formErrors = this.formContacts.querySelector('.form__errors');
+	constructor(template: HTMLTemplateElement, protected events: IEvents) {
+		this.formContacts = template.content
+			.querySelector('.form')
+			.cloneNode(true) as HTMLFormElement;
+		this.inputAll = Array.from(
+			this.formContacts.querySelectorAll('.form__input')
+		);
+		this.buttonSubmit = this.formContacts.querySelector('.button');
+		this.formErrors = this.formContacts.querySelector('.form__errors');
 
-    this.setupInputListeners();
-    this.setupSubmitListener();
- }
+		this.inputAll.forEach((item) => {
+			item.addEventListener('input', (event) => {
+				const target = event.target as HTMLInputElement;
+				const field = target.name;
+				const value = target.value;
+				this.events.emit(`contacts:changeInput`, { field, value });
+			});
+		});
 
- private cloneForm(template: HTMLTemplateElement): HTMLFormElement {
-    return template.content.querySelector('.form').cloneNode(true) as HTMLFormElement;
- }
+		this.formContacts.addEventListener('submit', (event: Event) => {
+			event.preventDefault();
+			this.events.emit('success:open');
+		});
+	}
 
- private setupInputListeners() {
-    this.inputAll.forEach(input => {
-      input.addEventListener('input', this.handleInputChange);
-    });
- }
+	set valid(value: boolean) {
+		this.buttonSubmit.disabled = !value;
+	}
 
- private handleInputChange = (event: Event) => {
-    const target = event.target as HTMLInputElement;
-    const { name: field, value } = target;
-    this.events.emit(`contacts:changeInput`, { field, value });
- }
-
- private setupSubmitListener() {
-    this.formContacts.addEventListener('submit', (event: Event) => {
-      event.preventDefault();
-      this.events.emit('success:open');
-    });
- }
-
- get valid() {
-    return !this.buttonSubmit.disabled;
- }
-
- set valid(value: boolean) {
-    this.buttonSubmit.disabled = !value;
- }
-
- render() {
-    return this.formContacts;
- }
+	render() {
+		return this.formContacts;
+	}
 }

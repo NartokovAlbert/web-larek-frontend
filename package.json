@@ -522,8 +522,8 @@
     "sprintf-js": "^1.0.3",
     "ssri": "^8.0.1",
     "statuses": "^2.0.1",
-    "string-width": "^4.2.3",
     "string_decoder": "^1.3.0",
+    "string-width": "^4.2.3",
     "strip-ansi": "^6.0.1",
     "strip-bom": "^2.0.0",
     "strip-bom-buf": "^1.0.0",
@@ -548,10 +548,7 @@
     "treeverse": "^1.0.4",
     "trim-repeated": "^1.0.0",
     "tslib": "^2.5.0",
-<<<<<<< HEAD
     "tslint": "^6.1.3",
-=======
->>>>>>> aa47d7e7c405df101da3df5302317082db2f4452
     "tsutils": "^3.21.0",
     "type-check": "^0.4.0",
     "type-fest": "^0.20.2",
@@ -601,7 +598,6 @@
     "yeoman-environment": "^3.15.1",
     "yeoman-generator": "^5.8.0",
     "yocto-queue": "^0.1.0"
-<<<<<<< HEAD
   },
   "keywords": [],
   "files": [
@@ -609,7 +605,4 @@
     "./lib/*"
   ],
   "typings": "./lib/index.d.ts"
-=======
-  }
->>>>>>> aa47d7e7c405df101da3df5302317082db2f4452
 }

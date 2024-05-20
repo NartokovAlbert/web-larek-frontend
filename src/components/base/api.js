@@ -1,23 +1,40 @@
 export class Api {
-    constructor(baseUrl, options = {}) {
-        var _a;
-        this.baseUrl = baseUrl;
-        this.options = {
-            headers: Object.assign({ 'Content-Type': 'application/json' }, ((_a = options.headers) !== null && _a !== void 0 ? _a : {})),
-        };
-    }
-    handleResponse(response) {
-        if (response.ok)
-            return response.json();
-        else
-            return response
-                .json()
-                .then((data) => { var _a; return Promise.reject((_a = data.error) !== null && _a !== void 0 ? _a : response.statusText); });
-    }
-    get(uri) {
-        return fetch(this.baseUrl + uri, Object.assign(Object.assign({}, this.options), { method: 'GET' })).then(this.handleResponse);
-    }
-    post(uri, data, method = 'POST') {
-        return fetch(this.baseUrl + uri, Object.assign(Object.assign({}, this.options), { method, body: JSON.stringify(data) })).then(this.handleResponse);
-    }
+	constructor(baseUrl, options = {}) {
+		var _a;
+		this.baseUrl = baseUrl;
+		this.options = {
+			headers: Object.assign(
+				{ 'Content-Type': 'application/json' },
+				(_a = options.headers) !== null && _a !== void 0 ? _a : {}
+			),
+		};
+	}
+	async handleResponse(response) {
+		var _a;
+		if (response.ok) {
+			return await response.json();
+		} else {
+			const data = await response.json();
+			return Promise.reject(
+				(_a = data.error) !== null && _a !== void 0 ? _a : response.statusText
+			);
+		}
+	}
+	async get(uri) {
+		const response = await fetch(
+			this.baseUrl + uri,
+			Object.assign(Object.assign({}, this.options), { method: 'GET' })
+		);
+		return this.handleResponse(response);
+	}
+	async post(uri, data, method = 'POST') {
+		const response = await fetch(
+			this.baseUrl + uri,
+			Object.assign(Object.assign({}, this.options), {
+				method,
+				body: JSON.stringify(data),
+			})
+		);
+		return this.handleResponse(response);
+	}
 }

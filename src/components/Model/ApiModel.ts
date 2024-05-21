@@ -17,7 +17,7 @@ export class ApiModel extends Api {
 		this.cdn = cdn;
 	}
 
-	// получаем массив объектов(карточек) с сервера
+	// получаем массив карточек с сервера
 	getListProductCard(): Promise<IProductItem[]> {
 		return this.get('/product').then((data: ApiListResult<IProductItem>) =>
 			data.items.map((item) => ({
@@ -27,7 +27,7 @@ export class ApiModel extends Api {
 		);
 	}
 
-	// получаем ответ от сервера по сделанному заказу
+	// получаем ответ от сервера 
 	postOrderLot(order: IOrderLot): Promise<IOrderResult> {
 		return this.post(`/order`, order).then((data: IOrderResult) => data);
 	}

@@ -7,8 +7,8 @@ export class Order {
 		this.formErrors = this.formOrder.querySelector('.form__errors');
 		this.buttonAll.forEach((item) => {
 			item.addEventListener('click', () => {
-				this.paymentSelection = item.name;
-				events.emit('order:paymentSelection', item);
+				this.paymentСhoice = item.name;
+				events.emit('order:paymentСhoice', item);
 			});
 		});
 		this.formOrder.addEventListener('input', (event) => {
@@ -23,7 +23,7 @@ export class Order {
 		});
 	}
 	// устанавливаем обводку вокруг выбранного метода оплаты
-	set paymentSelection(paymentMethod) {
+	set paymentСhoice(paymentMethod) {
 		this.buttonAll.forEach((item) => {
 			item.classList.toggle('button_alt-active', item.name === paymentMethod);
 		});

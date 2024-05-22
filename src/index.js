@@ -44,7 +44,7 @@ events.on('card:select', (item) => {
 	dataModel.setPreview(item);
 });
 /********** Открываем модальное окно карточки товара **********/
-events.on('modalCard:open', (item) => {
+events.on('popupCard:open', (item) => {
 	const cardPreview = new CardPreview(cardPreviewTemplate, events);
 	modal.content = cardPreview.render(item);
 	modal.render();
@@ -61,7 +61,7 @@ events.on('basket:open', () => {
 	let i = 0;
 	basket.items = basketModel.basketProducts.map((item) => {
 		const basketItem = new BasketItem(cardBasketTemplate, events, {
-			onClick: () => events.emit('basket:basketItemRemove', item),
+			onClick: () => events.emit('basket:basketListDelete', item),
 		});
 		i = i + 1;
 		return basketItem.render(item, i);
@@ -70,14 +70,14 @@ events.on('basket:open', () => {
 	modal.render();
 });
 /********** Удаление карточки товара из корзины **********/
-events.on('basket:basketItemRemove', (item) => {
+events.on('basket:basketListDelete', (item) => {
 	basketModel.deleteCardToBasket(item);
 	basket.renderHeaderBasketCounter(basketModel.getCounter()); // отобразить количество товара на иконке корзины
 	basket.renderSumAllProducts(basketModel.getSumAllProducts()); // отобразить сумма всех продуктов в корзине
 	let i = 0;
 	basket.items = basketModel.basketProducts.map((item) => {
 		const basketItem = new BasketItem(cardBasketTemplate, events, {
-			onClick: () => events.emit('basket:basketItemRemove', item),
+			onClick: () => events.emit('basket:basketListDelete', item),
 		});
 		i = i + 1;
 		return basketItem.render(item, i);
@@ -89,7 +89,7 @@ events.on('order:open', () => {
 	modal.render();
 	formModel.items = basketModel.basketProducts.map((item) => item.id); // передаём список id товаров которые покупаем
 });
-events.on('order:paymentSelection', (button) => {
+events.on('order:paymentСhoice', (button) => {
 	formModel.payment = button.name;
 }); // передаём способ оплаты
 /********** Отслеживаем изменение в поле в вода "адреса доставки" **********/

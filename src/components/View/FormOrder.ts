@@ -3,7 +3,7 @@ import { IEvents } from '../base/events';
 export interface IOrder {
 	formOrder: HTMLFormElement;
 	buttonAll: HTMLButtonElement[];
-	paymentSelection: String;
+	paymentСhoice: String;
 	formErrors: HTMLElement;
 	render(): HTMLElement;
 }
@@ -24,8 +24,8 @@ export class Order implements IOrder {
 
 		this.buttonAll.forEach((item) => {
 			item.addEventListener('click', () => {
-				this.paymentSelection = item.name;
-				events.emit('order:paymentSelection', item);
+				this.paymentСhoice = item.name;
+				events.emit('order:paymentСhoice', item);
 			});
 		});
 
@@ -43,7 +43,7 @@ export class Order implements IOrder {
 	}
 
 	// устанавливаем обводку вокруг выбранного метода оплаты
-	set paymentSelection(paymentMethod: string) {
+	set paymentСhoice(paymentMethod: string) {
 		this.buttonAll.forEach((item) => {
 			item.classList.toggle('button_alt-active', item.name === paymentMethod);
 		});

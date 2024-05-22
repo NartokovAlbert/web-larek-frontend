@@ -26,6 +26,6 @@ export class DataModel implements IDataModel {
 
 	setPreview(item: IProductItem) {
 		this.selectedCard = item;
-		this.events.emit('modalCard:open', this.selectedCard);
+		this.events.emit('popupCard:open', this.selectedCard);
 	}
 }

@@ -1,5 +1,5 @@
 export interface IProductItem {
-	id: string;
+	id?: string;
 	description: string;
 	image: string;
 	title: string;
@@ -34,7 +34,7 @@ export interface IOrderLot {
 }
 
 export interface IOrderResult {
-	id: string;
+	id?: string;
 	total: number;
 }
 

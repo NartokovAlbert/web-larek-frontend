@@ -12,6 +12,6 @@ export class DataModel {
 	}
 	setPreview(item) {
 		this.selectedCard = item;
-		this.events.emit('modalCard:open', this.selectedCard);
+		this.events.emit('popupCard:open', this.selectedCard);
 	}
 }

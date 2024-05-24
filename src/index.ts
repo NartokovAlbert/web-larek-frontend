@@ -45,13 +45,15 @@ const formModel = new FormModel(events);
 const order = new Order(orderTemplate, events);
 const contacts = new Contacts(contactsTemplate, events);
 
-/* Отображения карточек  на странице */
+const galleryElement = ensureElement<HTMLElement>('.gallery');
+
+/* Отображения карточек на странице */
 events.on('productCards:receive', () => {
 	dataModel.productCards.forEach((item) => {
 		const card = new Card(cardCatalogTemplate, events, {
 			onClick: () => events.emit('card:select', item),
 		});
-		ensureElement<HTMLElement>('.gallery').append(card.render(item));
+		galleryElement.append(card.render(item));
 	});
 });
 
@@ -60,6 +62,7 @@ events.on('card:select', (item: IProductItem) => {
 	dataModel.setPreview(item);
 	events.emit('popupCard:open', item);
 });
+
 /* Открываем модальное окно карточки  */
 events.on('popupCard:open', (item: IProductItem) => {
 	const cardPreview = new CardPreview(cardPreviewTemplate, events);

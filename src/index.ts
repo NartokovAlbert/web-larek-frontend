@@ -46,14 +46,13 @@ const order = new Order(orderTemplate, events);
 const contacts = new Contacts(contactsTemplate, events);
 
 const galleryElement = ensureElement<HTMLElement>('.gallery');
-
 /* Отображения карточек на странице */
 events.on('productCards:receive', () => {
 	dataModel.productCards.forEach((item) => {
 		const card = new Card(cardCatalogTemplate, events, {
 			onClick: () => events.emit('card:select', item),
 		});
-		galleryElement.append(card.render(item));
+		ensureElement<HTMLElement>('.gallery').append(card.render(item));
 	});
 });
 
@@ -63,7 +62,7 @@ events.on('card:select', (item: IProductItem) => {
 	events.emit('popupCard:open', item);
 });
 
-/* Открываем модальное окно карточки  */
+/* Открываем модальное окно карточки */
 events.on('popupCard:open', (item: IProductItem) => {
 	const cardPreview = new CardPreview(cardPreviewTemplate, events);
 	modal.content = cardPreview.render(item);
@@ -72,29 +71,19 @@ events.on('popupCard:open', (item: IProductItem) => {
 
 /* Добавление карточки товара в корзину */
 events.on('card:addBasket', () => {
-	basketModel.setSelectedСard(dataModel.selectedCard); // добавить карточку товара в корзину
-	basket.renderHeaderBasketCounter(basketModel.getCounter()); // отобразить количество товара на иконке корзины
+	basketModel.setSelectedCard(dataModel.selectedCard);
+	events.emit('basket:update');
 	modal.close();
-});
-
-/* Открытие модального окна корзины */
-events.on('basket:open', () => {
-	basket.renderSumAllProducts(basketModel.getSumAllProducts()); // отобразить сумма всех продуктов в корзине
-	let i = 0;
-	basket.items = basketModel.basketProducts.map((item) => {
-		const basketItem = new BasketItem(cardBasketTemplate, events, {
-			onClick: () => events.emit('basket:basketListDelete', item),
-		});
-		i = i + 1;
-		return basketItem.render(item, i);
-	});
-	modal.content = basket.render();
-	modal.render();
 });
 
 /* Удаление карточки товара из корзины */
 events.on('basket:basketListDelete', (item: IProductItem) => {
 	basketModel.deleteCardToBasket(item);
+	events.emit('basket:update');
+});
+
+/* Обновление корзины: пересчет товаров и отображение суммы и количества товаров */
+events.on('basket:update', () => {
 	basket.renderHeaderBasketCounter(basketModel.getCounter());
 	basket.renderSumAllProducts(basketModel.getSumAllProducts());
 	let i = 0;
@@ -107,23 +96,30 @@ events.on('basket:basketListDelete', (item: IProductItem) => {
 	});
 });
 
-/* Открытие модального окна  оплаты и  доставки */
+/* Открытие модального окна корзины */
+events.on('basket:open', () => {
+	basket.renderSumAllProducts(basketModel.getSumAllProducts());
+	modal.content = basket.render();
+	modal.render();
+});
+
+/* Открытие модального окна оплаты и доставки */
 events.on('order:open', () => {
 	modal.content = order.render();
 	modal.render();
 	formModel.items = basketModel.basketProducts.map((item) => item.id);
 });
 
-events.on('order:paymentСhoice', (button: HTMLButtonElement) => {
+events.on('order:paymentChoice', (button: HTMLButtonElement) => {
 	formModel.payment = button.name;
 });
 
-/* Отслеживаем изменение в поле в вода "адреса доставки" */
+/* Отслеживаем изменение в поле ввода "адреса доставки" */
 events.on(`order:changeAddress`, (data: { field: string; value: string }) => {
 	formModel.setOrderAddress(data.field, data.value);
 });
 
-/* Валидация формы оплаты и доставки*/
+/* Валидация формы оплаты и доставки */
 events.on('formErrors:address', (errors: Partial<IOrderForm>) => {
 	const { address, payment } = errors;
 	order.valid = !address && !payment;
@@ -132,14 +128,14 @@ events.on('formErrors:address', (errors: Partial<IOrderForm>) => {
 		.join('; ');
 });
 
-/* Открытие модального окна "Email" и "Телефон" **/
+/* Открытие модального окна "Email" и "Телефон" */
 events.on('contacts:open', () => {
 	formModel.total = basketModel.getSumAllProducts();
 	modal.content = contacts.render();
 	modal.render();
 });
 
-/* Отслеживаем изменение в полях вода "Email" и "Телефон" */
+/* Отслеживаем изменение в полях ввода "Email" и "Телефон" */
 events.on(`contacts:changeInput`, (data: { field: string; value: string }) => {
 	formModel.setOrderData(data.field, data.value);
 });
@@ -153,8 +149,7 @@ events.on('formErrors:change', (errors: Partial<IOrderForm>) => {
 		.join('; ');
 });
 
-/* Открытие модального окна оформленого заказа */
-
+/* Открытие модального окна оформленного заказа */
 async function handleSuccessOpen() {
 	try {
 		const data = await apiModel.postOrderLot(formModel.getOrderLot());
@@ -162,7 +157,7 @@ async function handleSuccessOpen() {
 		const success = new Success(successTemplate, events);
 		modal.content = success.render(basketModel.getSumAllProducts());
 		basketModel.clearBasketProducts();
-		basket.renderHeaderBasketCounter(basketModel.getCounter()); // отобразить количество товара на иконке корзины
+		events.emit('basket:update');
 		modal.render();
 	} catch (error) {
 		console.log(error);

@@ -7,11 +7,15 @@ export interface IBasketModel {
     setSelectedCard(data: IProductItem): void;
     deleteCardToBasket(item: IProductItem): void;
     clearBasketProducts(): void;
-    isProductInBasket(id: string): boolean;
+    isProductInBasket(id: string): boolean; // Добавляем метод isProductInBasket
 }
 
 export class BasketModel implements IBasketModel {
-    basketProducts: IProductItem[] = []; 
+    basketProducts: IProductItem[];
+
+    constructor() {
+        this.basketProducts = [];
+    }
 
     getCounter() {
         return this.basketProducts.length;
@@ -22,23 +26,18 @@ export class BasketModel implements IBasketModel {
     }
 
     setSelectedCard(data: IProductItem) {
-        const exists = this.basketProducts.some(item => item.id === data.id);
-        if (!exists) {
-            this.basketProducts.push(data);
-        }
+        this.basketProducts.push(data);
     }
 
     deleteCardToBasket(item: IProductItem) {
-        this.basketProducts = this.basketProducts.filter(
-            (product) => product.id !== item.id
-        );
+        this.basketProducts = this.basketProducts.filter(product => product !== item);
     }
 
     clearBasketProducts() {
         this.basketProducts = [];
     }
 
-    isProductInBasket(id: string) {
-        return this.basketProducts.some(item => item.id === id);
+    isProductInBasket(id: string): boolean {
+        return this.basketProducts.some(product => product.id === id);
     }
 }

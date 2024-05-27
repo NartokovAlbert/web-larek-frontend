@@ -56,16 +56,15 @@ events.on('productCards:receive', () => {
 	});
 });
 
-/* Получить объект данных "IProductItem" карточки по которой кликнули */
 events.on('card:select', (item: IProductItem) => {
 	dataModel.setPreview(item);
-	events.emit('popupCard:open', item);
+	const isInBasket = basketModel.isProductInBasket(item.id);
+	events.emit('popupCard:open', { item, isInBasket });
 });
 
-/* Открываем модальное окно карточки */
-events.on('popupCard:open', (item: IProductItem) => {
+events.on('popupCard:open', ({ item, isInBasket }: { item: IProductItem, isInBasket: boolean }) => {
 	const cardPreview = new CardPreview(cardPreviewTemplate, events);
-	modal.content = cardPreview.render(item);
+	modal.content = cardPreview.renderCardPreview(item, isInBasket);
 	modal.render();
 });
 
@@ -74,6 +73,13 @@ events.on('card:addBasket', () => {
 	basketModel.setSelectedCard(dataModel.selectedCard);
 	events.emit('basket:update');
 	modal.close();
+});
+
+/* Открытие модального окна корзины */
+events.on('basket:open', () => {
+	basket.renderSumAllProducts(basketModel.getSumAllProducts());
+	modal.content = basket.render();
+	modal.render();
 });
 
 /* Удаление карточки товара из корзины */
@@ -88,11 +94,11 @@ events.on('basket:update', () => {
 	basket.renderSumAllProducts(basketModel.getSumAllProducts());
 	let i = 0;
 	basket.items = basketModel.basketProducts.map((item) => {
-		const basketItem = new BasketItem(cardBasketTemplate, events, {
-			onClick: () => events.emit('basket:basketListDelete', item),
-		});
-		i = i + 1;
-		return basketItem.render(item, i);
+			const basketItem = new BasketItem(cardBasketTemplate, events, {
+					onClick: () => events.emit('basket:basketListDelete', item),
+			});
+			i = i + 1;
+			return basketItem.render(item, i);
 	});
 });
 

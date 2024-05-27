@@ -1,4 +1,4 @@
-import { IProductItem } from '../../types';
+import { IProductItem } from "../../types";
 
 export interface IBasketModel {
     basketProducts: IProductItem[];
@@ -7,14 +7,11 @@ export interface IBasketModel {
     setSelectedCard(data: IProductItem): void;
     deleteCardToBasket(item: IProductItem): void;
     clearBasketProducts(): void;
+    isProductInBasket(id: string): boolean;
 }
 
 export class BasketModel implements IBasketModel {
-    basketProducts: IProductItem[]; // список карточек товара в корзине
-
-    constructor() {
-        this.basketProducts = [];
-    }
+    basketProducts: IProductItem[] = []; 
 
     getCounter() {
         return this.basketProducts.length;
@@ -25,7 +22,6 @@ export class BasketModel implements IBasketModel {
     }
 
     setSelectedCard(data: IProductItem) {
-        // Проверяем, если товар уже существует в корзине
         const exists = this.basketProducts.some(item => item.id === data.id);
         if (!exists) {
             this.basketProducts.push(data);
@@ -34,11 +30,15 @@ export class BasketModel implements IBasketModel {
 
     deleteCardToBasket(item: IProductItem) {
         this.basketProducts = this.basketProducts.filter(
-            (product) => product !== item
+            (product) => product.id !== item.id
         );
     }
 
     clearBasketProducts() {
         this.basketProducts = [];
+    }
+
+    isProductInBasket(id: string) {
+        return this.basketProducts.some(item => item.id === id);
     }
 }

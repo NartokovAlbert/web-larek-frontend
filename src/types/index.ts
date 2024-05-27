@@ -9,6 +9,7 @@ export interface IProductItem {
 
 export interface IActions {
 	onClick: (event: MouseEvent) => void;
+	checkItemInBasket?: (itemId: string) => boolean;
 }
 
 // интерфейс формы заказа
